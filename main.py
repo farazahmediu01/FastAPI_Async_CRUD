@@ -25,8 +25,13 @@ async def create_a_book(book: BookCreateModel, session: session_dependency):
 
 
 # Get all books with limit and offset as a default query parameter.
+# We can use Query to set the range for the offset and limit query parameters.
 @app.get("/books/", response_model=list[BookReadModel])
-async def get_all_books(session: session_dependency, offset: int = 0, limit: int = 5):
+async def get_all_books(
+    session: session_dependency,
+    offset: Annotated[int, Query(min_length=0)] = 0,
+    limit: Annotated[int, Query(max_length=50)] = 5,
+):
     statement = select(Book).offset(offset).limit(limit)
     result = await session.execute(statement)
     books = result.scalars().all()
